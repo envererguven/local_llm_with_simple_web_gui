@@ -12,7 +12,7 @@ def index():
 def ask():
     data = request.get_json()
     prompt = data.get('prompt', '')
-    ollama_url = 'http://127.0.0.1:11434/api/generate'
+    ollama_url = 'http://localhost:11434/api/generate'
     payload = {
         'model': 'llama3.2:1b',
         'prompt': prompt
