@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ollama Llama3:8b Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        .container { max-width: 600px; margin: auto; }
+        textarea, button { font-size: 1.1em; margin: 8px 0; width: 100%; }
+        #response { margin-top: 16px; white-space: pre-wrap; background: #f4f4f4; padding: 12px; border-radius: 6px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Ollama Llama3.2:1b Chat</h2>
+    <textarea id="prompt" rows="4" placeholder="Enter your prompt..."></textarea>
+    <button onclick="askLLM()">Send</button>
+    <div id="chat-history" style="margin-top:24px;"></div>
+    </div>
+    <script>
+        let chatHistory = [];
+        function renderChat() {
+            const chatDiv = document.getElementById('chat-history');
+            chatDiv.innerHTML = '';
+            chatHistory.forEach(item => {
+                chatDiv.innerHTML += `<div style='margin-bottom:12px;'><b>You:</b> ${item.prompt}<br><b>LLM:</b> ${item.response}</div>`;
+            });
+        }
+
+        function askLLM() {
+            const prompt = document.getElementById('prompt').value;
+            if (!prompt.trim()) return;
+            chatHistory.push({ prompt, response: 'Waiting for response...' });
+            renderChat();
+            fetch('/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt })
+            })
+            .then(response => response.json())
+            .then(data => {
+                chatHistory[chatHistory.length - 1].response = data.response || ('Error: ' + (data.error || 'Unknown error'));
+                renderChat();
+            })
+            .catch(() => {
+                chatHistory[chatHistory.length - 1].response = 'Error connecting to server.';
+                renderChat();
+            });
+            document.getElementById('prompt').value = '';
+        }
+    </script>
+</body>
+</html>
